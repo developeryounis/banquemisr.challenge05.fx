@@ -1,0 +1,30 @@
+<app-loading-spinner [isLoading$]="isLoading$"></app-loading-spinner>
+<div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+</div>
+<div *ngIf="!(isLoading$ | async)" class="container">
+    <h1>Currency Converter</h1>
+    <form [formGroup]="converterForm" (ngSubmit)="convertCurrency()">
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" formControlName="amount" placeholder="Enter amount" />
+
+        <label for="fromCurrency">From:</label>
+        <select id="fromCurrency" formControlName="fromCurrency">
+            <option *ngFor="let currency of fromCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.name}}</option>
+        </select>
+
+        <label for="toCurrency">To:</label>
+        <select id="toCurrency" formControlName="toCurrency">
+            <option *ngFor="let currency of toCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.name}}</option>
+        </select>
+
+        <button type="button" (click)="swapCurrencies()">Swap</button>
+
+        <button type="submit" [disabled]="!converterForm.valid || !canConvert">Convert</button>
+    </form>
+
+    <h3 *ngIf="convertedAmount">Converted Data</h3>
+    <p *ngIf="convertedAmount">Converted Amount: {{convertedAmount}} {{converterForm.value.toCurrency}}</p>
+
+    <a [routerLink]="['/details']" [queryParams]="{ from: 'USD', to: 'EUR' }">Go to Details Page</a>
+</div>

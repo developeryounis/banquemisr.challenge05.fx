@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { LatestExchangeRatesResponse } from '../../models/latest.exchange.rates.response.model';
-import { FixerService } from '../../services/fixer.service';
 import { BehaviorSubject, tap } from 'rxjs';
-import { MockedData } from '../../mocked-data';
+import { MockedData } from 'src/app/shared/mocked-data';
+import { LatestExchangeRatesResponse } from 'src/app/shared/models/latest.exchange.rates.response.model';
+import { FixerService } from 'src/app/shared/services/fixer.service';
 
 @Component({
   selector: 'app-currency-list',

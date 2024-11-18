@@ -27,5 +27,5 @@
 
     <h3 *ngIf="convertedAmount">Converted Amount: {{convertedAmount}} {{converterForm.value.toCurrency}}</h3>
     <app-currency-list [fromCurrency]="fromCurrency" [toCurrency]="toCurrency"></app-currency-list>
-    <a *ngIf="converterForm.valid" [routerLink]="['/details']" [queryParams]="{ from: converterForm.value.fromCurrency, to: converterForm.value.toCurrency }">Go to Details Page</a>
+    <!-- <a *ngIf="converterForm.valid" [routerLink]="['/details']" [queryParams]="{ from: converterForm.value.fromCurrency, to: converterForm.value.toCurrency }">Go to Details Page</a> -->
 </div>

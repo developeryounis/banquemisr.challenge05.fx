@@ -5,14 +5,12 @@ import { CurrencyService } from './services/currency.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FixerService } from './services/fixer.service';
 import { HttpClientModule } from '@angular/common/http';
-import { CurrencyListComponent } from './components/currency-list/currency-list.component';
 
 
 
 @NgModule({
   declarations: [
-    LoadingSpinnerComponent,
-    CurrencyListComponent,
+    LoadingSpinnerComponent
   ],
   imports: [
     CommonModule,
@@ -21,7 +19,7 @@ import { CurrencyListComponent } from './components/currency-list/currency-list.
     HttpClientModule
   ],
   exports: [
-    LoadingSpinnerComponent, CurrencyListComponent
+    LoadingSpinnerComponent
   ],
   providers: [CurrencyService, FixerService]
 })

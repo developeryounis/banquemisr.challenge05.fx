@@ -1,5 +1,5 @@
 export interface CurrencyConverterModel {
     amount: number;
-    from: string;
-    to: string;
+    fromCurrency: string;
+    toCurrency: string;
 }

@@ -1,0 +1,38 @@
+.currency-lists {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  
+  .currency-column {
+    width: 45%;
+  }
+  
+  .currency-column h2 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .currency-column ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .currency-column li {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  
+  .currency-column li span {
+    display: block;
+    padding: 5px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+  
+  .currency-column li span:hover {
+    background-color: #e9ecef;
+  }
+  

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin, tap } from 'rxjs';
 import { CurrencyConversionResponse } from 'src/app/shared/models/currency.conversion.response.model';
 import { CurrencyConverterModel } from 'src/app/shared/models/currency.converter.model';
 import { CurrencyModel } from 'src/app/shared/models/currency.model';
+import { LatestExchangeRatesResponse } from 'src/app/shared/models/latest.exchange.rates.response.model';
 import { CurrencyService } from 'src/app/shared/services/currency.service';
 import { FixerService } from 'src/app/shared/services/fixer.service';
 
@@ -18,9 +19,12 @@ export class CurrencyConverterComponent implements OnInit {
   currencyConversionResponse = new BehaviorSubject<CurrencyConversionResponse>({} as CurrencyConversionResponse);
   fromCurrencies: CurrencyModel[] = [];
   toCurrencies: CurrencyModel[] = [];
+  currencies: CurrencyModel[] = [];
   convertedAmount: string = '';
   errorMessage: string = '';
   canConvert: boolean = false;
+  fromRates!: LatestExchangeRatesResponse;
+  toRates!: LatestExchangeRatesResponse;
 
   constructor(private fb: FormBuilder,
      private currencyService: CurrencyService,
@@ -28,7 +32,7 @@ export class CurrencyConverterComponent implements OnInit {
 
   ngOnInit(): void {
     this.currencyService.getAllCurrencies()
-        .pipe(tap((currencies: CurrencyModel[]) => this.buildForm(currencies.map(x => x))))
+        .pipe(tap((currencies) => this.buildForm(currencies.map(x => x))))
         .subscribe();
   }
 
@@ -45,8 +49,8 @@ export class CurrencyConverterComponent implements OnInit {
   convertCurrency(): void {
     const currencyConverterModel = this.converterForm.value as CurrencyConverterModel;
     if (this.converterForm.valid) {
-      this.fixerService.convertCurrency(currencyConverterModel.from, currencyConverterModel.to, currencyConverterModel.amount)
-          .pipe(tap((response: CurrencyConversionResponse) => {
+      this.fixerService.convertCurrency(currencyConverterModel.fromCurrency, currencyConverterModel.toCurrency, currencyConverterModel.amount)
+          .pipe(tap((response) => {
             if (response.success) {
               this.errorMessage = '';
               this.convertedAmount = String(response.result)
@@ -71,6 +75,7 @@ export class CurrencyConverterComponent implements OnInit {
   }
 
   private initializeCurrencyLists(currencies: CurrencyModel[]): void {
+    this.currencies = currencies;
     this.fromCurrencies =  currencies.map(currency => ({ ...currency }));
     this.toCurrencies =  currencies.map(currency => ({ ...currency }));
   }
@@ -93,6 +98,24 @@ export class CurrencyConverterComponent implements OnInit {
     currencyList.forEach(currency => {
       currency.disabled = currency.code === selectedValue;
     });
+  }
+
+  setRates(event: any) {
+    const dropdownId = event.target.id;
+    const currency = event.target.value;
+    if (!currency) {
+      return;
+    }
+    const toSymbols = this.currencies.filter(x => x.code != currency).map(x => x.code).join(',');
+    this.fixerService.getLatestExchangeRates(currency, toSymbols)
+      .pipe(tap((response) => {
+        if (dropdownId === 'toCurrency') {
+          this.toRates = response;
+        } else{
+          this.fromRates = response;
+        }
+      }))
+      .subscribe();
   }
   
 }

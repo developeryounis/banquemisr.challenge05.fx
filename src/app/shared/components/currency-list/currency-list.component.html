@@ -1,0 +1,19 @@
+<div class="currency-lists">
+    <div *ngIf="fromRates" class="currency-column">
+        <h2>From Currencies</h2>
+        <ul>
+            <li *ngFor="let currency of fromRates.rates | keyvalue;let i = index">
+                <span>{{printConversion(i, fromRates.base, currency.value, currency.key)}}</span>
+            </li>
+        </ul>
+    </div>
+
+    <div *ngIf="toRates" class="currency-column">
+        <h2>To Currencies</h2>
+        <ul>
+            <li *ngFor="let currency of toRates.rates | keyvalue;let i = index">
+                <span>{{printConversion(i, toRates.base, currency.value, currency.key)}}</span>
+            </li>
+        </ul>
+    </div>
+</div>

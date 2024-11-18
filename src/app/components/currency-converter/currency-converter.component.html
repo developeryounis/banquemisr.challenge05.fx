@@ -9,12 +9,12 @@
         <input type="number" id="amount" formControlName="amount" placeholder="Enter amount" />
 
         <label for="fromCurrency">From:</label>
-        <select id="fromCurrency" formControlName="fromCurrency">
+        <select id="fromCurrency" (change)="setRates($event)" formControlName="fromCurrency">
             <option *ngFor="let currency of fromCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.name}}</option>
         </select>
 
         <label for="toCurrency">To:</label>
-        <select id="toCurrency" formControlName="toCurrency">
+        <select id="toCurrency" (change)="setRates($event)" formControlName="toCurrency">
             <option *ngFor="let currency of toCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.name}}</option>
         </select>
 
@@ -25,6 +25,6 @@
 
     <h3 *ngIf="convertedAmount">Converted Data</h3>
     <p *ngIf="convertedAmount">Converted Amount: {{convertedAmount}} {{converterForm.value.toCurrency}}</p>
-
-    <a [routerLink]="['/details']" [queryParams]="{ from: 'USD', to: 'EUR' }">Go to Details Page</a>
+    <app-currency-list [fromRates]="fromRates" [toRates]="toRates"></app-currency-list>
+    <a *ngIf="converterForm.valid" [routerLink]="['/details']" [queryParams]="{ from: converterForm.value.fromCurrency, to: converterForm.value.toCurrency }">Go to Details Page</a>
 </div>

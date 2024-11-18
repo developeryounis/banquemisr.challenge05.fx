@@ -1,44 +1,68 @@
 .content {
-    display: flex;
-    margin: 82px auto 32px;
-    padding: 0 16px;
-    max-width: 960px;
-    flex-direction: column;
-    align-items: center;
-  }  
+  display: flex;
+  margin: 82px auto 32px;
+  padding: 0 16px;
+  max-width: 960px;
+  flex-direction: column;
+  align-items: center;
+}
+
 .toolbar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    background-color: #eee;
-    color: #000;
-    font-weight: 600;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background-color: #eee;
+  color: #000;
+  font-weight: 600;
+  z-index: 1000;
+}
+
+.logo {
+  width: 120px;
+}
+
+span.title {
+  padding-left: 20px;
+  color: #383032ba;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.currency-links {
+  display: flex;
+  gap: 16px;
+}
+
+.currency-links a {
+  color: #383032ba;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.currency-links a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .toolbar {
+    flex-direction: column;
+    height: auto;
+    padding: 8px;
   }
 
-  .toolbar img {
-    margin: 0 16px;
+  .currency-links {
+    margin-top: 8px;
   }
 
-  .toolbar #twitter-logo {
-    height: 40px;
-    margin: 0 8px;
+  .currency-links a {
+    font-size: 12px;
   }
-
-  .toolbar #youtube-logo {
-    height: 40px;
-    margin: 0 16px;
-  }
-
-  .toolbar #twitter-logo:hover,
-  .toolbar #youtube-logo:hover {
-    opacity: 0.8;
-  }
-
-
-  .logo {
-    width: 120px
-  }
+}

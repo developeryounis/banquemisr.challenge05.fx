@@ -4,7 +4,7 @@ import { catchError, Observable, tap } from 'rxjs';
 import { CurrencyConversionResponse } from '../models/currency.conversion.response.model';
 import { environment } from 'src/environments/environment';
 import { LatestExchangeRatesResponse } from '../models/latest.exchange.rates.response.model';
-import { HistoricalCurrencyResponse } from '../models/historical.currency.reposnse';
+import { HistoricalCurrencyResponse } from '../models/historical.currency.response';
 
 @Injectable({
   providedIn: 'root'

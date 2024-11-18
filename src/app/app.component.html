@@ -1,17 +1,15 @@
 <div class="toolbar" role="banner">
   <img
     class="logo"
-    alt="img"
+    alt="Brand Logo"
     src="../assets/imgs/bmp-logo.png"
   />
-  <span>Welcome</span>
-    <div class="spacer"></div>
-    <a>
-      USD
-    </a>
-    <a>
-      EUR
-    </a>
+  <span class="title">Welcome to Currency Converter</span>
+  <div class="spacer"></div>
+  <div class="currency-links">
+    <a [routerLink]="['/currency-details']" [queryParams]="{ from: 'USD', to: 'EUR' }">USD</a>
+    <a [routerLink]="['/currency-details']" [queryParams]="{ from: 'EUR', to: 'USD' }">EUR</a>
+  </div>
 </div>
 
 <div class="content" role="main">

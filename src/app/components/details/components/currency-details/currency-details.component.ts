@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, forkJoin, tap } from 'rxjs';
 import { MockedData } from 'src/app/shared/mocked-data';
 import { CurrencyModel } from 'src/app/shared/models/currency.model';
-import { HistoricalCurrencyResponse } from 'src/app/shared/models/historical.currency.reposnse';
+import { HistoricalCurrencyResponse } from 'src/app/shared/models/historical.currency.response';
 import { HistoricalDataModel } from 'src/app/shared/models/historical.data.model';
 import { CurrencyService } from 'src/app/shared/services/currency.service';
 import { FixerService } from 'src/app/shared/services/fixer.service';
@@ -18,7 +17,7 @@ export class CurrencyDetailsComponent implements OnInit {
 
   fromCurrency = new BehaviorSubject<string>('');
   toCurrency = new BehaviorSubject<string>('');
-  currencies: CurrencyModel[] = [];
+  currencies: { [key: string]: CurrencyModel } = {};
   isLoading$ = new BehaviorSubject(true);
   historicalDataResponse: HistoricalCurrencyResponse[] = [];
   historicalData!: HistoricalDataModel;
@@ -44,12 +43,10 @@ export class CurrencyDetailsComponent implements OnInit {
   initForm() {
     this.loadCurrencies();
     this.loadHistoricalData(this.toCurrency.value);
-    this.isLoading$.next(false);
   }
 
   loadHistoricalData(event: any) {
     this.toCurrency.next(event);
-    this.isLoading$.next(true);
     const date = new Date();
     const day = `${date.getFullYear()}/${date.getMonth()}/${date.getDay()}`;
     const month =`${date.getFullYear()}/${date.getMonth() - 1}/${date.getDay()}`;
@@ -64,18 +61,13 @@ export class CurrencyDetailsComponent implements OnInit {
       this.historicalDataResponse.push(response.historicalRatesMonth.success ? response.historicalRatesMonth : this.mockedData.getHistoricalData(day, this.fromCurrency.value, this.toCurrency.value));
       this.historicalDataResponse.push(response.historicalRatesYear.success ? response.historicalRatesYear : this.mockedData.getHistoricalData(day, this.fromCurrency.value, this.toCurrency.value));
       this.initializeHistoricalData();
-      this.isLoading$.next(false);
     })).subscribe();
   }
 
   private loadCurrencies() {
     this.currencyService.getAllCurrencies().pipe(tap((response) => {
       this.currencies = response;
-      this.currencies.forEach(x => {
-        if (x.code == this.fromCurrency.value) {
-          x.disabled = true;
-        }
-      })
+      this.currencies[this.fromCurrency.value].disabled = true;
       this.isLoading$.next(false);
     })).subscribe();
   }

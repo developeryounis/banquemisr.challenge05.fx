@@ -8,8 +8,8 @@ import { MockedData } from '../mocked-data';
 })
 export class CurrencyService {
   mockedData = new MockedData();
-  getAllCurrencies(): Observable<CurrencyModel[]>  {
-    return of(this.mockedData.getCurrencies()).pipe(delay(2000));
+  getAllCurrencies(): Observable<{ [key: string]: CurrencyModel }>  {
+    return of(this.mockedData.getCurrencies()).pipe(delay(1000));
   }
 
   

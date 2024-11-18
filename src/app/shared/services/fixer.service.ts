@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, Observable, tap } from 'rxjs';
 import { CurrencyConversionResponse } from '../models/currency.conversion.response.model';
 import { environment } from 'src/environments/environment';
 import { LatestExchangeRatesResponse } from '../models/latest.exchange.rates.response.model';
+import { HistoricalCurrencyResponse } from '../models/historical.currency.reposnse';
 
 @Injectable({
   providedIn: 'root'
@@ -42,5 +43,21 @@ export class FixerService {
       .set('symbols', symbols);
 
     return this.http.get<LatestExchangeRatesResponse>(`${this.baseUrl}/latest`, { params });
+  }
+
+  /**
+   * Get the history exchange rates for a given base currency and list of symbols.
+   * @param date history date string YYYY-MM-DD
+   * @param baseCurrency - The base currency (e.g., USD).
+   * @param symbols - A comma-separated list of target currencies (e.g., 'GBP,JPY,EUR').
+   * @returns 
+   */
+  getHistoricalData(date: string, baseCurrency: string, symbols: string): Observable<HistoricalCurrencyResponse> {
+    const params = new HttpParams()
+      .set('access_key', environment.fixerAccessKey)
+      .set('base', baseCurrency)
+      .set('symbols', symbols);
+
+    return this.http.get<HistoricalCurrencyResponse>(`${this.baseUrl}${date}`, { params });
   }
 }

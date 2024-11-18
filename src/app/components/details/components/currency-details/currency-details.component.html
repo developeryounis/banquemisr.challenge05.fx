@@ -1,1 +1,17 @@
-<p>currency-details works!</p>
+<app-loading-spinner [isLoading$]="isLoading$"></app-loading-spinner>
+<div class="container">
+    <a [routerLink]="['/']">← Go to Home Page</a>
+    <h1>Currency Conversion Details</h1>
+    <label for="fromCurrency">From Currency:</label>
+    <input type="text" [disabled]="true" id="fromCurrency" [ngModel]="fromCurrency.value" />
+
+    <label for="toCurrency">To Currency:</label>
+    <select id="toCurrency" (ngModelChange)="loadHistoricalData($event)" [ngModel]="toCurrency.value">
+        <option *ngFor="let currency of currencies" [disabled]="currency.disabled" [value]="currency.code">
+            {{currency.name}}</option>
+    </select>
+
+    <app-historical-details [historicalData]="historicalData"></app-historical-details>
+
+    <app-currency-list [fromCurrency]="fromCurrency" [toCurrency]="toCurrency"></app-currency-list>
+</div>

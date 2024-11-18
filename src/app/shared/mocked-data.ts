@@ -1,5 +1,6 @@
 import { CurrencyConversionResponse } from "./models/currency.conversion.response.model";
 import { CurrencyModel } from "./models/currency.model";
+import { HistoricalCurrencyResponse } from "./models/historical.currency.reposnse";
 import { LatestExchangeRatesResponse } from "./models/latest.exchange.rates.response.model";
 
 export class MockedData {
@@ -112,5 +113,19 @@ export class MockedData {
 
         return latestRates;
 
+    }
+
+    public getHistoricalData(date: string, base: string, symbols: string): HistoricalCurrencyResponse {
+      const historicalRates = { base: base, date: date, success: true, timestamp: new Date().getDate(), historical: true, rates: {} } as HistoricalCurrencyResponse;
+        const currencies = symbols.split(',');
+        currencies.forEach(currency => {
+            if (currency != base) {
+                const fluctuationPercentage = Math.random() * 0.1 - 0.05;
+                const rateResponse = this.getConversion(base, currency, 1)
+                const rate = rateResponse.info.rate * (1 + fluctuationPercentage);
+                historicalRates.rates[currency] = rate;
+            }
+        });
+        return historicalRates;
     }
 }

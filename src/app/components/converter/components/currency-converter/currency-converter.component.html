@@ -10,14 +10,14 @@
 
         <label for="fromCurrency">From:</label>
         <select id="fromCurrency" formControlName="fromCurrency">
-            <option *ngFor="let currency of fromCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.name}}</option>
+            <option *ngFor="let currency of fromCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.code}}</option>
         </select>
         <div class="swap-container">
             <button class="swap-button" [disabled]="" type="button" (click)="swapCurrencies()">↑↓</button>
         </div>
         <label for="toCurrency">To:</label>
         <select id="toCurrency" formControlName="toCurrency">
-            <option *ngFor="let currency of toCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.name}}</option>
+            <option *ngFor="let currency of toCurrencies" [disabled]="currency.disabled" [value]="currency.code">{{currency.code}}</option>
         </select>
 
         
@@ -27,5 +27,5 @@
 
     <h3 *ngIf="convertedAmount">Converted Amount: {{convertedAmount}} {{converterForm.value.toCurrency}}</h3>
     <app-currency-list [fromCurrency]="fromCurrency" [toCurrency]="toCurrency"></app-currency-list>
-    <!-- <a *ngIf="converterForm.valid" [routerLink]="['/details']" [queryParams]="{ from: converterForm.value.fromCurrency, to: converterForm.value.toCurrency }">Go to Details Page</a> -->
+    <a *ngIf="converterForm.valid" [routerLink]="['/currency-details']" [queryParams]="{ from: converterForm.value.fromCurrency, to: converterForm.value.toCurrency }">Go to Details Page</a>
 </div>

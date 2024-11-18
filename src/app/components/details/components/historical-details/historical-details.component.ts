@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { HistoricalDataModel } from 'src/app/shared/models/historical.data.model';
 
 @Component({
   selector: 'app-historical-details',
@@ -7,4 +8,5 @@ import { Component } from '@angular/core';
 })
 export class HistoricalDetailsComponent {
 
+  @Input() historicalData!: HistoricalDataModel;
 }

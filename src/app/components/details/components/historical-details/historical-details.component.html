@@ -1,1 +1,8 @@
-<p>historical-details works!</p>
+<div *ngIf="historicalData" class="historical-data">
+    <h3>Historical Data</h3>
+    <div>
+        <h4>Last Year: {{ historicalData.lastYear }}</h4>
+        <h4>Last Month: {{ historicalData.lastMonth }}</h4>
+        <h4>Last Day: {{ historicalData.lastDay }}</h4>
+    </div>
+</div>

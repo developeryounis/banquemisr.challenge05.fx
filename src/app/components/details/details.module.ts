@@ -6,6 +6,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { CurrencyDetailsComponent } from './components/currency-details/currency-details.component';
 import { HistoricalDetailsComponent } from './components/historical-details/historical-details.component';
+import { RouterModule } from '@angular/router';
 
 
 
@@ -17,7 +18,8 @@ import { HistoricalDetailsComponent } from './components/historical-details/hist
     ReactiveFormsModule,
     HttpClientModule,
     SharedModule,
-    BrowserModule
+    BrowserModule,
+    RouterModule
   ]
 })
 export class DetailsModule { }

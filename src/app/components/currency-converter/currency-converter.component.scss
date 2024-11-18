@@ -137,3 +137,24 @@ a:hover {
         font-size: 14px;
     }
 }
+.swap-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.swap-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.swap-button:hover {
+    background-color: #218838;
+}

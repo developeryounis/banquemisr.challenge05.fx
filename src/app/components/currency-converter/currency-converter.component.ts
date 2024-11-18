@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject, forkJoin, tap } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
+import { MockedData } from 'src/app/shared/mocked-data';
 import { CurrencyConversionResponse } from 'src/app/shared/models/currency.conversion.response.model';
 import { CurrencyConverterModel } from 'src/app/shared/models/currency.converter.model';
 import { CurrencyModel } from 'src/app/shared/models/currency.model';
@@ -25,6 +26,9 @@ export class CurrencyConverterComponent implements OnInit {
   canConvert: boolean = false;
   fromRates!: LatestExchangeRatesResponse;
   toRates!: LatestExchangeRatesResponse;
+  fromCurrency = new BehaviorSubject<string>('');
+  toCurrency = new BehaviorSubject<string>('');
+  mockedData = new MockedData();
 
   constructor(private fb: FormBuilder,
      private currencyService: CurrencyService,
@@ -55,8 +59,8 @@ export class CurrencyConverterComponent implements OnInit {
               this.errorMessage = '';
               this.convertedAmount = String(response.result)
             } else {
-              this.errorMessage = response.error.info;
-              this.convertedAmount = '';
+              const res = this.mockedData.getConversion(currencyConverterModel.fromCurrency, currencyConverterModel.toCurrency, currencyConverterModel.amount);
+              this.convertedAmount = String(res.result);
             }
           }))
           .subscribe();
@@ -87,10 +91,12 @@ export class CurrencyConverterComponent implements OnInit {
   
     this.converterForm.get('fromCurrency')?.valueChanges.subscribe(value => {
       this.toggleCurrencyDisabled(this.toCurrencies, value);
+      this.fromCurrency.next(value);
     });
   
     this.converterForm.get('toCurrency')?.valueChanges.subscribe(value => {
       this.toggleCurrencyDisabled(this.fromCurrencies, value);
+      this.toCurrency.next(value);
     });
   }
 
@@ -98,24 +104,6 @@ export class CurrencyConverterComponent implements OnInit {
     currencyList.forEach(currency => {
       currency.disabled = currency.code === selectedValue;
     });
-  }
-
-  setRates(event: any) {
-    const dropdownId = event.target.id;
-    const currency = event.target.value;
-    if (!currency) {
-      return;
-    }
-    const toSymbols = this.currencies.filter(x => x.code != currency).map(x => x.code).join(',');
-    this.fixerService.getLatestExchangeRates(currency, toSymbols)
-      .pipe(tap((response) => {
-        if (dropdownId === 'toCurrency') {
-          this.toRates = response;
-        } else{
-          this.fromRates = response;
-        }
-      }))
-      .subscribe();
   }
   
 }

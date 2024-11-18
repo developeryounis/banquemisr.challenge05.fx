@@ -12,7 +12,7 @@ export interface CurrencyConversionResponse {
     historical: string;
     date: string;
     result: number;
-    error: {
+    error?: {
         info: string;
     }
 }

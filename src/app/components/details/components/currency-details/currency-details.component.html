@@ -1,17 +1,17 @@
 <app-loading-spinner [isLoading$]="isLoading$"></app-loading-spinner>
 <div *ngIf="!(isLoading$ | async)" class="container">
-    <a [routerLink]="['/']" [queryParams]="{ from: fromCurrency.value, to: toCurrency.value }">← Go to Home Page</a>
+    <a [routerLink]="['/']" [queryParams]="{ from: fromCurrency$.value, to: toCurrency$.value }">← Go to Home Page</a>
     <h1>Currency Conversion Details</h1>
     <label for="fromCurrency">From Currency:</label>
-    <input type="text" [disabled]="true" id="fromCurrency" [value]="currencies[fromCurrency.value].name" />
+    <input type="text" [disabled]="true" id="fromCurrency" [value]="currencies[fromCurrency$.value].name" />
 
     <label for="toCurrency">To Currency:</label>
-    <select id="toCurrency" (ngModelChange)="loadHistoricalData($event)" [ngModel]="toCurrency.value">
+    <select id="toCurrency" (ngModelChange)="loadHistoricalData($event)" [ngModel]="toCurrency$.value">
         <option *ngFor="let currency of currencies | keyvalue" [disabled]="currency.value.disabled" [value]="currency.key">
             {{currency.value.name}}</option>
     </select>
 
     <app-historical-details [historicalData]="historicalData"></app-historical-details>
 
-    <app-currency-list [fromCurrency]="fromCurrency" [toCurrency]="toCurrency"></app-currency-list>
+    <app-currency-list [fromCurrency]="fromCurrency$" [toCurrency]="toCurrency$"></app-currency-list>
 </div>

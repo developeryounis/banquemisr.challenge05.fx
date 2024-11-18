@@ -10,6 +10,11 @@ import { LatestExchangeRatesResponse } from 'src/app/shared/models/latest.exchan
 import { CurrencyService } from 'src/app/shared/services/currency.service';
 import { FixerService } from 'src/app/shared/services/fixer.service';
 
+const FORM_KEYS = {
+  AMOUNT: 'amount',
+  FROM_CURRENCY: 'fromCurrency',
+  TO_CURRENCY: 'toCurrency',
+}
 @Component({
   selector: 'app-currency-converter',
   templateUrl: './currency-converter.component.html',
@@ -23,7 +28,6 @@ export class CurrencyConverterComponent implements OnInit {
   toCurrencies: { [key: string]: CurrencyModel } = {};
   currencies: { [key: string]: CurrencyModel } = {};
   convertedAmount: string = '';
-  errorMessage: string = '';
   canConvert: boolean = false;
   fromRates!: LatestExchangeRatesResponse;
   toRates!: LatestExchangeRatesResponse;
@@ -54,8 +58,8 @@ export class CurrencyConverterComponent implements OnInit {
     const toCurrency = this.converterForm.value.toCurrency;
 
     this.converterForm.patchValue({
-      fromCurrency: toCurrency,
-      toCurrency: fromCurrency
+      [FORM_KEYS.FROM_CURRENCY]: toCurrency,
+      [FORM_KEYS.TO_CURRENCY]: fromCurrency
     });
   }
 
@@ -64,13 +68,10 @@ export class CurrencyConverterComponent implements OnInit {
     if (this.converterForm.valid) {
       this.fixerService.convertCurrency(currencyConverterModel.fromCurrency, currencyConverterModel.toCurrency, currencyConverterModel.amount)
           .pipe(tap((response) => {
-            if (response.success) {
-              this.errorMessage = '';
-              this.convertedAmount = String(response.result)
-            } else {
-              const res = this.mockedData.getConversion(currencyConverterModel.fromCurrency, currencyConverterModel.toCurrency, currencyConverterModel.amount);
-              this.convertedAmount = String(res.result);
+            if (!response.success) {
+              response = this.mockedData.getConversion(currencyConverterModel.fromCurrency, currencyConverterModel.toCurrency, currencyConverterModel.amount);
             }
+            this.convertedAmount = String(response.result);
           }))
           .subscribe();
     }
@@ -78,40 +79,36 @@ export class CurrencyConverterComponent implements OnInit {
 
   private buildForm(currencies: { [key: string]: CurrencyModel }): void {
     this.converterForm = this.fb.group({
-      amount: [null, [Validators.required, Validators.min(1)]],
-      fromCurrency: ['', Validators.required],
-      toCurrency: ['', Validators.required],
+      [FORM_KEYS.AMOUNT]: [null, [Validators.required, Validators.min(1)]],
+      [FORM_KEYS.FROM_CURRENCY]: ['', Validators.required],
+      [FORM_KEYS.TO_CURRENCY]: ['', Validators.required],
     });
     this.initializeCurrencyLists(currencies);
     this.setupValueChangeHandlers();
     this.converterForm.patchValue({
-      fromCurrency: this.fromCurrency.value,
-      toCurrency: this.toCurrency.value
+      [FORM_KEYS.FROM_CURRENCY]: this.fromCurrency.value,
+      [FORM_KEYS.TO_CURRENCY]: this.toCurrency.value
     })
     this.isLoading$.next(false);
   }
 
   private initializeCurrencyLists(currencies: { [key: string]: CurrencyModel }): void {
-    this.currencies = this.deepClone(currencies);
-    this.fromCurrencies = this.deepClone(currencies);
-    this.toCurrencies = this.deepClone(currencies);
-  }
-
-  private deepClone<T>(obj: T): T {
-      return JSON.parse(JSON.stringify(obj));
+    this.currencies = structuredClone(currencies);
+    this.fromCurrencies = structuredClone(currencies);
+    this.toCurrencies = structuredClone(currencies);
   }
   
   private setupValueChangeHandlers(): void {
-    this.converterForm.get('amount')?.valueChanges.subscribe(value => {
+    this.converterForm.get(FORM_KEYS.AMOUNT)?.valueChanges.subscribe(value => {
       this.canConvert = value > 0;
     });
   
-    this.converterForm.get('fromCurrency')?.valueChanges.subscribe(value => {
+    this.converterForm.get(FORM_KEYS.FROM_CURRENCY)?.valueChanges.subscribe(value => {
       this.toggleCurrencyDisabled(this.toCurrencies, value);
       this.fromCurrency.next(value);
     });
   
-    this.converterForm.get('toCurrency')?.valueChanges.subscribe(value => {
+    this.converterForm.get(FORM_KEYS.TO_CURRENCY)?.valueChanges.subscribe(value => {
       this.toggleCurrencyDisabled(this.fromCurrencies, value);
       this.toCurrency.next(value);
     });

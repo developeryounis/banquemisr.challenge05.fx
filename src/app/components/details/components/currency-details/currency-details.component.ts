@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, forkJoin, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { MockedData } from 'src/app/shared/mocked-data';
 import { CurrencyModel } from 'src/app/shared/models/currency.model';
 import { HistoricalCurrencyResponse } from 'src/app/shared/models/historical.currency.response';
@@ -14,71 +15,105 @@ import { FixerService } from 'src/app/shared/services/fixer.service';
   styleUrls: ['./currency-details.component.scss']
 })
 export class CurrencyDetailsComponent implements OnInit {
-
-  fromCurrency = new BehaviorSubject<string>('');
-  toCurrency = new BehaviorSubject<string>('');
+  fromCurrency$ = new BehaviorSubject<string>('');
+  toCurrency$ = new BehaviorSubject<string>('');
   currencies: { [key: string]: CurrencyModel } = {};
-  isLoading$ = new BehaviorSubject(true);
+  isLoading$ = new BehaviorSubject<boolean>(true);
   historicalDataResponse: HistoricalCurrencyResponse[] = [];
   historicalData!: HistoricalDataModel;
   mockedData = new MockedData();
 
-  constructor(private route: ActivatedRoute,
-     private router: Router,
-     private fixerService: FixerService,
-     private currencyService: CurrencyService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private fixerService: FixerService,
+    private currencyService: CurrencyService
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.fromCurrency.next(params['from']);
-      this.toCurrency.next(params['to']);
-      if (!this.fromCurrency || !this.toCurrency) {
+      const fromCurrency = params['from'];
+      const toCurrency = params['to'];
+      if (!fromCurrency || !toCurrency) {
         this.router.navigate(['/']);
         return;
       }
-      this.initForm();
+
+      this.fromCurrency$.next(fromCurrency);
+      this.toCurrency$.next(toCurrency);
+
+      this.initialize();
     });
   }
 
-  initForm() {
+  private initialize(): void {
     this.loadCurrencies();
-    this.loadHistoricalData(this.toCurrency.value);
+    this.loadHistoricalData(this.toCurrency$.value);
   }
 
-  loadHistoricalData(event: any) {
-    this.toCurrency.next(event);
-    const date = new Date();
-    const day = `${date.getFullYear()}/${date.getMonth()}/${date.getDay()}`;
-    const month =`${date.getFullYear()}/${date.getMonth() - 1}/${date.getDay()}`;
-    const year = `${date.getFullYear() - 1}/${date.getMonth()}/${date.getDay()}`;
+  private loadCurrencies(): void {
+    this.currencyService
+      .getAllCurrencies()
+      .pipe(
+        tap(response => {
+          this.currencies = { ...response };
+          if (this.currencies[this.fromCurrency$.value]) {
+            this.currencies[this.fromCurrency$.value].disabled = true;
+          }
+          this.isLoading$.next(false);
+        }),
+        catchError(() => {
+          this.isLoading$.next(false);
+          return [];
+        })
+      )
+      .subscribe();
+  }
+
+  loadHistoricalData($event: string): void {
+    const historicalDates = this.getHistoricalDates();
+    this.toCurrency$.next($event);
     forkJoin({
-      historicalRatesDay: this.fixerService.getHistoricalData(day, this.fromCurrency.value, this.toCurrency.value),
-      historicalRatesMonth: this.fixerService.getHistoricalData(month, this.fromCurrency.value, this.toCurrency.value),
-      historicalRatesYear: this.fixerService.getHistoricalData(year, this.fromCurrency.value, this.toCurrency.value)
-    }).pipe(tap((response) => {
-      this.historicalDataResponse = [];
-      this.historicalDataResponse.push(response.historicalRatesDay.success ? response.historicalRatesDay : this.mockedData.getHistoricalData(day, this.fromCurrency.value, this.toCurrency.value));
-      this.historicalDataResponse.push(response.historicalRatesMonth.success ? response.historicalRatesMonth : this.mockedData.getHistoricalData(day, this.fromCurrency.value, this.toCurrency.value));
-      this.historicalDataResponse.push(response.historicalRatesYear.success ? response.historicalRatesYear : this.mockedData.getHistoricalData(day, this.fromCurrency.value, this.toCurrency.value));
-      this.initializeHistoricalData();
-    })).subscribe();
+      day: this.fixerService.getHistoricalData(historicalDates.day, this.fromCurrency$.value, this.toCurrency$.value),
+      month: this.fixerService.getHistoricalData(historicalDates.month, this.fromCurrency$.value, this.toCurrency$.value),
+      year: this.fixerService.getHistoricalData(historicalDates.year, this.fromCurrency$.value, this.toCurrency$.value),
+    })
+      .pipe(
+        tap(response => {
+          this.historicalDataResponse = [
+            this.getResponseOrMock(response.day, historicalDates.day),
+            this.getResponseOrMock(response.month, historicalDates.month),
+            this.getResponseOrMock(response.year, historicalDates.year),
+          ];
+          this.initializeHistoricalData();
+        }),
+        catchError(() => {
+          this.historicalDataResponse = [];
+          return [];
+        })
+      )
+      .subscribe();
   }
 
-  private loadCurrencies() {
-    this.currencyService.getAllCurrencies().pipe(tap((response) => {
-      this.currencies = response;
-      this.currencies[this.fromCurrency.value].disabled = true;
-      this.isLoading$.next(false);
-    })).subscribe();
+  private getHistoricalDates(): { day: string; month: string; year: string } {
+    const date = new Date();
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const day = formatDate(new Date());
+    const month = formatDate(new Date(new Date().setMonth(date.getMonth() - 1)));
+    const year = formatDate(new Date(new Date().setFullYear(date.getFullYear() - 1)));
+
+    return { day, month, year };
   }
 
-  
+  private getResponseOrMock(response: HistoricalCurrencyResponse, date: string): HistoricalCurrencyResponse {
+    return response.success ? response : this.mockedData.getHistoricalData(date, this.fromCurrency$.value, this.toCurrency$.value);
+  }
 
-  private initializeHistoricalData() {
+  private initializeHistoricalData(): void {
     this.historicalData = {
-      lastDay: this.historicalDataResponse[0].rates[this.toCurrency.value],
-      lastMonth: this.historicalDataResponse[1].rates[this.toCurrency.value],
-      lastYear: this.historicalDataResponse[2].rates[this.toCurrency.value]
-    }
+      lastDay: this.historicalDataResponse[0].rates[this.toCurrency$.value],
+      lastMonth: this.historicalDataResponse[1].rates[this.toCurrency$.value],
+      lastYear: this.historicalDataResponse[2].rates[this.toCurrency$.value],
+    };
   }
 }

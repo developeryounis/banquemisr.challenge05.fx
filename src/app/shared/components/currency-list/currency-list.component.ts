@@ -41,10 +41,14 @@ export class CurrencyListComponent implements OnInit {
     }
     this.amounts.forEach(amount => {
       const fromToRate = response.rates[this.toCurrency.value];
-      const from = `${amount} ${this.fromCurrency.value} = ${Number((amount * fromToRate).toFixed(2))} ${this.toCurrency.value}`;
-      const to = `${amount} ${this.toCurrency.value} = ${Number((amount / fromToRate).toFixed(2))} ${this.fromCurrency.value}`;
+      const from = this.formatConversion(amount, fromToRate, amount * fromToRate, this.fromCurrency.value, this.toCurrency.value)
+      const to = this.formatConversion(amount, fromToRate, amount / fromToRate, this.fromCurrency.value, this.toCurrency.value)
       this.fromRates.push(from);
       this.toRates.push(to);
     });
+  }
+
+  private formatConversion(amount: number, rate: number, result: number, fromCurrency: string, toCurrency: string): string {
+    return `${amount} ${fromCurrency} = ${Number(result.toFixed(2))} ${toCurrency}`;
   }
 }

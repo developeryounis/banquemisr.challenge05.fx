@@ -58,6 +58,6 @@ export class FixerService {
       .set('base', baseCurrency)
       .set('symbols', symbols);
 
-    return this.http.get<HistoricalCurrencyResponse>(`${this.baseUrl}${date}`, { params });
+    return this.http.get<HistoricalCurrencyResponse>(`${this.baseUrl}/${date}`, { params });
   }
 }

@@ -1,7 +1,4 @@
 <app-loading-spinner [isLoading$]="isLoading$"></app-loading-spinner>
-<div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-</div>
 <div *ngIf="!(isLoading$ | async)" class="container">
     <h1>Currency Converter</h1>
     <form [formGroup]="converterForm" (ngSubmit)="convertCurrency()">

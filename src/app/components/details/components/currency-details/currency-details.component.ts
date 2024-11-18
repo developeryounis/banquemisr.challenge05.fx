@@ -4,7 +4,7 @@ import { BehaviorSubject, forkJoin } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { MockedData } from 'src/app/shared/mocked-data';
 import { CurrencyModel } from 'src/app/shared/models/currency.model';
-import { HistoricalCurrencyResponse } from 'src/app/shared/models/historical.currency.response';
+import { HistoricalCurrencyResponse } from 'src/app/shared/models/historical.currency.reposnse';
 import { HistoricalDataModel } from 'src/app/shared/models/historical.data.model';
 import { CurrencyService } from 'src/app/shared/services/currency.service';
 import { FixerService } from 'src/app/shared/services/fixer.service';
@@ -24,8 +24,8 @@ export class CurrencyDetailsComponent implements OnInit {
   mockedData = new MockedData();
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
+    readonly route: ActivatedRoute,
+    readonly router: Router,
     private fixerService: FixerService,
     private currencyService: CurrencyService
   ) {}
@@ -46,12 +46,12 @@ export class CurrencyDetailsComponent implements OnInit {
     });
   }
 
-  private initialize(): void {
+  initialize(): void {
     this.loadCurrencies();
     this.loadHistoricalData(this.toCurrency$.value);
   }
 
-  private loadCurrencies(): void {
+  loadCurrencies(): void {
     this.currencyService
       .getAllCurrencies()
       .pipe(
@@ -61,10 +61,6 @@ export class CurrencyDetailsComponent implements OnInit {
             this.currencies[this.fromCurrency$.value].disabled = true;
           }
           this.isLoading$.next(false);
-        }),
-        catchError(() => {
-          this.isLoading$.next(false);
-          return [];
         })
       )
       .subscribe();
@@ -95,7 +91,7 @@ export class CurrencyDetailsComponent implements OnInit {
       .subscribe();
   }
 
-  private getHistoricalDates(): { day: string; month: string; year: string } {
+  getHistoricalDates(): { day: string; month: string; year: string } {
     const date = new Date();
     const formatDate = (date: Date) => date.toISOString().split('T')[0];
     const day = formatDate(new Date());

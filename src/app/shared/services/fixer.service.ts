@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CurrencyConversionResponse } from '../models/currency.conversion.response.model';
 import { environment } from 'src/environments/environment';
 import { LatestExchangeRatesResponse } from '../models/latest.exchange.rates.response.model';
-import { HistoricalCurrencyResponse } from '../models/historical.currency.response';
+import { HistoricalCurrencyResponse } from '../models/historical.currency.reposnse';
 
 @Injectable({
   providedIn: 'root'

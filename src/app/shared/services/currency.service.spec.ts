@@ -1,12 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CurrencyService } from './currency.service';
+import { TestModule } from '../test.module';
 
 describe('CurrencyService', () => {
   let service: CurrencyService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [TestModule]
+    });
     service = TestBed.inject(CurrencyService);
   });
 

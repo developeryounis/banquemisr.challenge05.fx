@@ -1,6 +1,6 @@
 import { CurrencyConversionResponse } from "./models/currency.conversion.response.model";
 import { CurrencyModel } from "./models/currency.model";
-import { HistoricalCurrencyResponse } from "./models/historical.currency.response";
+import { HistoricalCurrencyResponse } from "./models/historical.currency.reposnse";
 import { LatestExchangeRatesResponse } from "./models/latest.exchange.rates.response.model";
 
 export class MockedData {

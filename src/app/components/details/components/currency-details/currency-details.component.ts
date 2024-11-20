@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, forkJoin } from 'rxjs';
+import { BehaviorSubject, forkJoin, Subscription } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { MockedData } from 'src/app/shared/mocked-data';
 import { CurrencyModel } from 'src/app/shared/models/currency.model';
@@ -14,7 +14,7 @@ import { FixerService } from 'src/app/shared/services/fixer.service';
   templateUrl: './currency-details.component.html',
   styleUrls: ['./currency-details.component.scss']
 })
-export class CurrencyDetailsComponent implements OnInit {
+export class CurrencyDetailsComponent implements OnInit, OnDestroy {
   fromCurrency$ = new BehaviorSubject<string>('');
   toCurrency$ = new BehaviorSubject<string>('');
   currencies: { [key: string]: CurrencyModel } = {};
@@ -22,6 +22,7 @@ export class CurrencyDetailsComponent implements OnInit {
   historicalDataResponse: HistoricalCurrencyResponse[] = [];
   historicalData!: HistoricalDataModel;
   mockedData = new MockedData();
+  subscription = new Subscription();
 
   constructor(
     readonly route: ActivatedRoute,
@@ -29,9 +30,12 @@ export class CurrencyDetailsComponent implements OnInit {
     private fixerService: FixerService,
     private currencyService: CurrencyService
   ) {}
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
+    this.subscription.add(this.route.queryParams.subscribe(params => {
       const fromCurrency = params['from'];
       const toCurrency = params['to'];
       if (!fromCurrency || !toCurrency) {
@@ -43,7 +47,7 @@ export class CurrencyDetailsComponent implements OnInit {
       this.toCurrency$.next(toCurrency);
 
       this.initialize();
-    });
+    }));
   }
 
   initialize(): void {
@@ -52,7 +56,7 @@ export class CurrencyDetailsComponent implements OnInit {
   }
 
   loadCurrencies(): void {
-    this.currencyService
+    this.subscription.add(this.currencyService
       .getAllCurrencies()
       .pipe(
         tap(response => {
@@ -63,32 +67,22 @@ export class CurrencyDetailsComponent implements OnInit {
           this.isLoading$.next(false);
         })
       )
-      .subscribe();
+      .subscribe());
   }
 
   loadHistoricalData($event: string): void {
     const historicalDates = this.getHistoricalDates();
     this.toCurrency$.next($event);
-    forkJoin({
+    this.subscription.add(forkJoin({
       day: this.fixerService.getHistoricalData(historicalDates.day, this.fromCurrency$.value, this.toCurrency$.value),
       month: this.fixerService.getHistoricalData(historicalDates.month, this.fromCurrency$.value, this.toCurrency$.value),
       year: this.fixerService.getHistoricalData(historicalDates.year, this.fromCurrency$.value, this.toCurrency$.value),
     })
       .pipe(
-        tap(response => {
-          this.historicalDataResponse = [
-            this.getResponseOrMock(response.day, historicalDates.day),
-            this.getResponseOrMock(response.month, historicalDates.month),
-            this.getResponseOrMock(response.year, historicalDates.year),
-          ];
-          this.initializeHistoricalData();
-        }),
-        catchError(() => {
-          this.historicalDataResponse = [];
-          return [];
-        })
+        tap(response => this.handleResponseOrError(response)),
+        catchError((error) => this.handleResponseOrError(error))
       )
-      .subscribe();
+      .subscribe());
   }
 
   getHistoricalDates(): { day: string; month: string; year: string } {
@@ -103,6 +97,17 @@ export class CurrencyDetailsComponent implements OnInit {
 
   private getResponseOrMock(response: HistoricalCurrencyResponse, date: string): HistoricalCurrencyResponse {
     return response.success ? response : this.mockedData.getHistoricalData(date, this.fromCurrency$.value, this.toCurrency$.value);
+  }
+
+  private handleResponseOrError(response: any): any {
+    console.log(response);
+    const historicalDates = this.getHistoricalDates();
+    this.historicalDataResponse = [
+      this.getResponseOrMock(response?.day, historicalDates.day),
+      this.getResponseOrMock(response?.month, historicalDates.month),
+      this.getResponseOrMock(response?.year, historicalDates.year),
+    ];
+    this.initializeHistoricalData();
   }
 
   private initializeHistoricalData(): void {

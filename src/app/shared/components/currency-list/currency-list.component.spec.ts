@@ -51,7 +51,7 @@ describe('CurrencyListComponent', () => {
     component.fromCurrency.next('USD');
     component.toCurrency.next('EUR');
     const getLatestExchangeRatesSpy = spyOn(fixerService, 'getLatestExchangeRates');
-    const populateConversionListSpy = spyOn(component, 'populateConversionList');
+    const populateConversionListSpy = spyOn(component, 'handleResponseOrError');
     fixerService.getLatestExchangeRates.and.returnValue(of(mockResponse));
 
     component.setConversions();
@@ -75,7 +75,7 @@ describe('CurrencyListComponent', () => {
     component.fromCurrency.next('USD');
     const formatConversionSpy = spyOn(component, 'formatConversion');
 
-    component.populateConversionList(mockResponse);
+    component.handleResponseOrError(mockResponse);
 
     expect(component.fromRates.length).toBe(6);
     expect(component.toRates.length).toBe(6);
@@ -107,7 +107,7 @@ describe('CurrencyListComponent', () => {
     component.fromCurrency.next('USD');
     const formatConversionSpy = spyOn(component, 'formatConversion');
 
-    component.populateConversionList(mockResponse);
+    component.handleResponseOrError(mockResponse);
 
     expect(component.fromRates.length).toBe(6);
     expect(component.toRates.length).toBe(6);
